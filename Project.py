@@ -5,7 +5,6 @@ file = open(r"user_dir.dat", "ab+")
 file.close()
 cur_uid = ''
 
-
 def register_new():
     username = input("Enter name: ")
     uid = input("Enter UID: ")
@@ -112,18 +111,14 @@ def menu():
     else:
         return menu()
 
-
 def employee_management():
     pass
-
 
 def patient_management():
     pass
 
-
 def inventory_management():
     pass
-
 
 def change_password():
     users = []
@@ -154,7 +149,6 @@ def change_password():
             pickle.dump(user, f)
     return menu()
 
-
 def remove_account():
     users = []
     with open("user_dir.dat", "rb") as f:
@@ -175,8 +169,6 @@ def remove_account():
             pickle.dump(user, f)
             print("\033[0;33mUser removed successfully!\033[0m")
     return ui_1()
-
-
 
 
 while True:
