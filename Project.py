@@ -3,6 +3,10 @@ import os
 
 file = open(r"user_dir.dat", "ab+")
 file.close()
+file = open(r"emp_master.dat", "ab+")
+file.close()
+file = open(r"inventory_dir.dat", "ab+")
+file.close()
 cur_uid = ''
 
 def register_new():
@@ -74,16 +78,20 @@ def login():
         elif ch in "Nn":
             return None
         return None
+
 def ui_1():
-    print("1. Login")
-    print("2. Register as new user")
-    print("3. Exit")
+    print("1. Administrator login")
+    print("2. Register new admin account")
+    print("3. Employee login")
+    print("4. Exit")
     ch0 = input("\033[0;32mEnter your choice: \033[0m")
     if ch0 == "1":
         login()
     elif ch0 == "2":
         register_new()
     elif ch0 == "3":
+        emp_menu()
+    elif ch0 == "4":
         exit()
 
 def menu():
@@ -91,9 +99,11 @@ def menu():
     print("1. Employee Management")
     print("2. Patient Management")
     print("3. Inventory Management")
-    print("4. Change password")
-    print("5. Remove account")
-    print("6. Logout")
+    print("4. Transaction Management")
+    print("5. Pharmacy Management")
+    print("6. Change password")
+    print("7. Remove account")
+    print("8. Logout")
     ch = input("\033[0;36mEnter your choice: \033[0m")
     if ch == "1":
         return employee_management()
@@ -102,22 +112,61 @@ def menu():
     elif ch == "3":
         return inventory_management()
     elif ch == "4":
-        return change_password()
-    elif ch == "5":
-        return remove_account()
+        return transaction_management()
     elif ch == "6":
-        print("\033[0;34mLogged out! \033[0m")
-        return None
+        return change_password()
+    elif ch == "7":
+        return remove_account()
+    elif ch == "8":
+        ch = input("\033[0;33mConfirm logout? (y/n) \033[0m")
+        if ch in "Yy":
+            print("\033[0;34mLogged out! \033[0m")
+            return ui_1()
+        elif ch in "Nn":
+            return menu()
+        return menu()
     else:
         return menu()
 
-def employee_management():
+def emp_menu():
     pass
+
+def employee_management():
+    print("1. Create new entry")
+    print("2. Remove employee")
+    print("3. Back")
+    ch = input("\033[0;36mEnter your choice: \033[0m")
+    if ch == "1":
+        print("1. Doctor")
+        print("2. Nurse")
+        print("3. Receptionist")
+        print("4. ")
+        name1 = input("Enter employee name: ")
+        desig = input("Enter employee designation: ")
+        empid = input("Enter employee ID: ")
+        new_entry = {"empid": empid, "name": name1, "designation": desig}
+
+
+
+        with open("emp_master.dat", "ab+") as f:
+            try:
+                while True:
+                    pass
+            except EOFError:
+                pass
+
+
 
 def patient_management():
     pass
 
 def inventory_management():
+    pass
+
+def transaction_management():
+    pass
+
+def pharmacy_management():
     pass
 
 def change_password():
@@ -169,6 +218,7 @@ def remove_account():
             pickle.dump(user, f)
             print("\033[0;33mUser removed successfully!\033[0m")
     return ui_1()
+
 
 
 while True:
