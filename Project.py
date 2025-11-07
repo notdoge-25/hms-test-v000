@@ -134,26 +134,39 @@ def emp_menu():
 def employee_management():
     print("1. Create new entry")
     print("2. Remove employee")
-    print("3. Back")
+    print("3. View all entries")
+    print("4. Back")
     ch = input("\033[0;36mEnter your choice: \033[0m")
     if ch == "1":
-        print("1. Doctor")
-        print("2. Nurse")
-        print("3. Receptionist")
-        print("4. ")
+        empid = input("Enter employee ID: ")
+        emplist = []
+        if os.path.getsize("emp_master.dat") > 0:
+            with open("emp_master.dat", "rb") as f:
+                try:
+                    while True:
+                        emplist.append(pickle.load(f))
+                except EOFError:
+                    pass
+        for emp in emplist:
+            if emp["uid"] == empid:
+                print("\033[0;32mEmployee ID already exists!\033[0m")
+
+        spec = input("Enter employee specification: ")
         name1 = input("Enter employee name: ")
         desig = input("Enter employee designation: ")
-        empid = input("Enter employee ID: ")
-        new_entry = {"empid": empid, "name": name1, "designation": desig}
-
-
-
+        new_entry = {"empid": empid, "name": name1, "designation": desig, "specialty": spec}
         with open("emp_master.dat", "ab+") as f:
             try:
-                while True:
-                    pass
+                pickle.dump(new_entry, f)
+                f.flush()
             except EOFError:
                 pass
+    elif ch == "2":
+        pass
+    elif ch == "3":
+        pass
+    elif ch == "4":
+        pass
 
 
 
