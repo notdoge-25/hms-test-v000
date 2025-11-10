@@ -3,6 +3,7 @@
     <words>
       <w>empid</w>
       <w>emplist</w>
+      <w>medlist</w>
     </words>
   </dictionary>
 </component>

@@ -69,3 +69,150 @@ def remove_empl():
         return None
     elif ch in "Nn":
         return employee_management()
+
+
+import os, pickle
+
+def pharmacy_management():
+    print("1. View stock")
+    print("2. Modify stock")
+    print("3. Billing")
+    while True:
+        ch = input("\033[0;36mEnter your choice: \033[0m")
+        if ch == "1":
+            if not os.path.exists("pharmacy.dat") or os.path.getsize("pharmacy.dat") == 0:
+                print("Stock empty!")
+                continue
+            with open("pharmacy.dat", "rb") as f:
+                try:
+                    while True:
+                        print(pickle.load(f))
+                except EOFError:
+                    pass
+        elif ch == "2":
+            medlist = []
+            if os.path.exists("pharmacy.dat") and os.path.getsize("pharmacy.dat") > 0:
+                with open("pharmacy.dat", "rb") as f:
+                    try:
+                        while True:
+                            medlist.append(pickle.load(f))
+                    except EOFError:
+                        pass
+            item_name = input("\033[0;31mEnter name of item: \033[0m")
+            item_id = input("\033[0;31mEnter id of item: \033[0m")
+            found = False
+            for items in medlist:
+                if items["item_id"] == item_id:
+                    found = True
+                    print("\033[0;33mItem already exists.\033[0m")
+                    print("1. Restock or Refund")
+                    print("2. Sell")
+                    sub_ch = input("\033[0;36mEnter your choice: \033[0m")
+                    if sub_ch == "1":
+                        quantity = int(input("\033[0;31mEnter no of items added: \033[0m"))
+                        items["quantity"] += quantity
+                    elif sub_ch == "2":
+                        quantity = int(input("\033[0;31mEnter number of items sold: \033[0m"))
+                        items["quantity"] -= quantity
+            if not found:
+                price = float(input("\033[0;31mEnter MRP: \033[0m"))
+                quantity = int(input("\033[0;31mEnter quantity: \033[0m"))
+                medlist.append({"item_name": item_name, "item_id": item_id, "quantity": quantity, "price": price})
+            with open("pharmacy.dat", "wb") as f:
+                for med in medlist:
+                    pickle.dump(med, f)
+        elif ch == "3":
+            print("Coming soon...")
+
+
+def pharmacy_management():
+    print("1. View stock")
+    print("2. Modify stock")
+    print("3. Billing")
+    while True:
+        ch = input("\033[0;36mEnter your choice: \033[0m")
+        if ch == "1":
+            try:
+                with open(r"pharmacy.dat", "rb+") as f:
+                    if os.path.getsize("pharmacy.dat") == 0:
+                        print("Stock empty!")
+                        continue
+                    else:
+                        try:
+                            while True:
+                                print(pickle.load(f))
+                        except EOFError:
+                            pass
+            except FileNotFoundError:
+                print("\033[0;31mPharmacy records file not found. Contact administrator.\033[0m")
+                print("\033[0;31mLogging out...\033[0m")
+                return ui_1()
+        elif ch == "2":
+            medlist = []
+            try:
+                if os.path.getsize("pharmacy.dat") > 0:
+                    with open("pharmacy.dat", "rb") as f:
+                        try:
+                            while True:
+                                medlist.append(pickle.load(f))
+                        except EOFError:
+                            pass
+            except FileNotFoundError:
+                print("Pharmacy records file not found. Create new? (y/n)\033[0m")
+                while True:
+                    if ch in "Yy":
+                        f = open("pharmacy.dat", "ab")
+                        f.close()
+            item_name = input("\033[0;31mEnter name of item: \033[0m")
+            item_id = input("\033[0;31mEnter id of item: \033[0m")
+            for items in medlist:
+                if items["item_id"] == item_id:
+                    print("\033[0;33mItem already exists.\033[0m")
+                    print("1. Restock or Refund")
+                    print("2. Sell")
+                        while True:
+                            ch = input("\033[0;36mEnter your choice: \033[0m")
+                            if ch == "1":
+                                try:
+                                    quantity = int(input("\033[0;31mEnter no of items added: \033[0m"))
+                                    items["quantity"] += quantity
+                                    break
+                                except ValueError:
+                                    print("\033[0;31mPlease enter only numeric!\033[0m")
+                            elif ch == "2":
+                                try:
+                                    quantity = int(input("\033[0;31mEnter number of items sold: \033[0m"))
+                                    items["quantity"] -= quantity
+                                    break
+                                except ValueError:
+                                    print("\033[0;31mPlease enter only numeric!\033[0m")
+            while True:
+                try:
+                    price = float(input("\033[0;31mEnter MRP: \033[0m"))
+                    quantity = int(input("\033[0;31mEnter quantity: \033[0m"))
+                    break
+                except ValueError:
+                    print("\033[0;31mPlease enter a valid quantity!\033[0m")
+                ch = input("\033[0;36mConfirm entry? (y/n): \033[0m")
+                if ch in "Yy":
+                    break
+                elif ch in "Nn":
+                    continue
+                else:
+                    print("\033[0;31mInvalid choice! Try again!\033[0m")
+            med = {"item_name": item_name, "item_id": item_id, "quantity": quantity, "price": price}
+            medlist.append(med)
+            with open("pharmacy.dat", "wb") as f:
+                for items in medlist:
+                    pickle.dump(items, f)
+
+        elif ch == "3":
+            print("Coming soon...")
+
+
+
+
+
+
+
+

@@ -1,5 +1,7 @@
 import pickle
 import os
+import getpass
+
 
 file = open(r"admin_dir.dat", "ab")
 file.close()
@@ -15,6 +17,7 @@ file = open(r"pharmacy.dat", "ab")
 cur_uid = None
 cur_pwd = None
 cur_empid = None
+cur_user = None
 master_pwd = "12345678"
 
 def ui_1():
@@ -27,7 +30,7 @@ def ui_1():
         return login()
     elif ch0 == "2":
         for i in range(3):
-            pwd_check = input("\033[0;32mEnter master password: \033[0m")
+            pwd_check = getpass.getpass("\033[0;32mEnter master password: \033[0m")
             if pwd_check == master_pwd:
                 return register_new()
             else:
@@ -75,8 +78,8 @@ def register_new():
             elif ch == "2":
                 return register_new()
     while True:
-        pwd = input("Enter your password: ")
-        pwd_ch = input("Re-enter your password: ")
+        pwd = getpass.getpass("Enter your password: ")
+        pwd_ch = getpass.getpass("Re-enter your password: ")
         if pwd == pwd_ch:
             new_user = {"uid": uid, "name": username, "password": pwd}
             with open("admin_dir.dat", "ab") as f:
@@ -90,6 +93,7 @@ def register_new():
 def login():
     global cur_uid
     global cur_pwd
+    global cur_user
     if os.path.getsize("admin_dir.dat") == 0:
         print("\033[0;31mDirectory empty! Please register first.\033[0m")
         pwd_check = input("\033[0;31mEnter master password: \033[0m")
@@ -115,6 +119,7 @@ def login():
                     cur_pwd = pwd
                     print("\033[0;32mLogged in successfully!\033[0m")
                     print(f"\033[0;32mWelcome back {user["name"]}!\033[0m")
+                    cur_user = "admin"
                     return menu()
                 else:
                     print(f"\033[0;31mWrong password! {4 - i} tries left.\033[0m")
@@ -135,11 +140,10 @@ def menu():
     print("1. Employee Management")
     print("2. Patient Management")
     print("3. Inventory Management")
-    print("4. Transaction Management")
-    print("5. Pharmacy Management")
-    print("6. Change password")
-    print("7. Remove account")
-    print("8. Logout")
+    print("4. Pharmacy Management")
+    print("5. Change password")
+    print("6. Remove account")
+    print("7. Logout")
     ch = input("\033[0;36mEnter your choice: \033[0m")
     if ch == "1":
         return employee_management()
@@ -148,12 +152,12 @@ def menu():
     elif ch == "3":
         return inventory_management()
     elif ch == "4":
-        return transaction_management()
-    elif ch == "6":
+        return pharmacy_management()
+    elif ch == "5":
         return change_password()
-    elif ch == "7":
+    elif ch == "6":
         return remove_account()
-    elif ch == "8":
+    elif ch == "7":
         ch = input("\033[0;33mConfirm logout? (y/n) \033[0m")
         if ch in "Yy":
             print("\033[0;34mLogged out! \033[0m")
@@ -166,22 +170,36 @@ def menu():
         return menu()
 
 def employee_management():
-    print("1. Create new entry")
-    print("2. Remove employee")
-    print("3. View all entries")
-    print("4. Back")
-    ch = input("\033[0;36mEnter your choice: \033[0m")
-    if ch == "1":
-        return reg_new_empl()
-    elif ch == "2":
-        return remove_empl()
-    elif ch == "3":
-        return view_all_empl()
-    elif ch == "4":
-        return menu()
-    else:
-        print("\033[0;31mInvalid choice!\033[0m")
-        return employee_management()
+    while True:
+        print("1. Create new entry")
+        print("2. Remove employee")
+        print("3. View all entries")
+        print("4. Back")
+        ch = input("\033[0;36mEnter your choice: \033[0m")
+        if ch == "1":
+            return reg_new_empl()
+        elif ch == "2":
+            return remove_empl()
+        elif ch == "3":
+            try:
+                if os.path.getsize("emp_dir.dat") == 0:
+                    print("\033[0;31mDirectory empty! Please register first.\033[0m")
+                else:
+                    with open("emp_dir.dat", "rb+") as f:
+                        try:
+                            while True:
+                                print(pickle.load(f))
+                        except EOFError:
+                            pass
+            except FileNotFoundError:
+                print("\033[0;31mDirectory not found! Creating new...\033[0m")
+                f = open("emp_dir.dat", "ab")
+                f.close()
+        elif ch == "4":
+            return menu()
+        else:
+            print("\033[0;31mInvalid choice!\033[0m")
+
 
 
 def reg_new_empl():
@@ -234,7 +252,6 @@ def reg_new_empl():
             break
         else:
             print("\033[0;31mInvalid choice!\033[0m")
-
     spec = None
     if designation == "doctor":
         print("\033[0;33mChoose specialty: \033[0m")
@@ -274,13 +291,10 @@ def reg_new_empl():
                 break
             else:
                 print("\033[0;31mPlease enter a valid choice!!\033[0m")
-    new_entry = {"empid": empid, "name": name1, "designation": designation, "specialty": spec}
-    emp_cred = {"empid": empid, "name": name1, "pwd": None}
+    new_entry = {"empid": empid, "name": name1, "designation": designation, "specialty": spec, "pwd" : None}
     with open("emp_dir.dat", "ab+") as f:
         pickle.dump(new_entry, f)
     print("\033[0;32mEmployee ID saved!. Account Created!\033[0m")
-    with open("emp_cred.dat", "ab+") as f:
-        pickle.dump(emp_cred, f)
     return employee_management()
 
 
@@ -333,29 +347,84 @@ def remove_empl():
         return employee_management()
 
 
-def view_all_empl():
-    with open(r"emp_dir.dat", "rb+") as f:
-        try:
-            while True:
-                print(pickle.load(f))
-        except EOFError:
-            f.close()
-    return employee_management()
-
-
 def patient_management():
-    pass
+    print("coming soon...")
+    return menu()
 
 
 def inventory_management():
-    pass
+    print("coming soon...")
+    return menu()
 
 
 def pharmacy_management():
     print("1. View stock")
     print("2. Modify stock")
-    while True
-
+    print("3. Billing")
+    if cur_user == "admin":
+        print("4. Go back")
+    elif cur_user == "pharmacist":
+        print("4. Logout")
+    while True:
+        ch = input("\033[0;36mEnter your choice: \033[0m")
+        if ch == "1":
+            if not os.path.exists("pharmacy.dat") or os.path.getsize("pharmacy.dat") == 0:
+                print("Stock empty!")
+                continue
+            with open("pharmacy.dat", "rb") as f:
+                try:
+                    while True:
+                        print(pickle.load(f))
+                except EOFError:
+                    pass
+        elif ch == "2":
+            medlist = []
+            if os.path.exists("pharmacy.dat") and os.path.getsize("pharmacy.dat") > 0:
+                with open("pharmacy.dat", "rb") as f:
+                    try:
+                        while True:
+                            medlist.append(pickle.load(f))
+                    except EOFError:
+                        pass
+            item_name = input("\033[0;31mEnter name of item: \033[0m")
+            item_id = input("\033[0;31mEnter id of item: \033[0m")
+            found = False
+            for items in medlist:
+                if items["item_id"] == item_id:
+                    found = True
+                    print("\033[0;33mItem already exists.\033[0m")
+                    print("1. Restock or Refund")
+                    print("2. Sell")
+                    sub_ch = input("\033[0;36mEnter your choice: \033[0m")
+                    if sub_ch == "1":
+                        quantity = int(input("\033[0;31mEnter no of items added: \033[0m"))
+                        items["quantity"] += quantity
+                    elif sub_ch == "2":
+                        quantity = int(input("\033[0;31mEnter number of items sold: \033[0m"))
+                        items["quantity"] -= quantity
+            if not found:
+                while True:
+                    try:
+                        price = float(input("\033[0;31mEnter MRP: \033[0m"))
+                        quantity = int(input("\033[0;31mEnter quantity: \033[0m"))
+                        break
+                    except ValueError:
+                        print("\033[0;31mPlease enter proper data type! (Price - Float; Quantity - Integer\033[0m")
+                med = {"item_name": item_name, "item_id": item_id, "quantity": quantity, "price": price}
+                medlist.append(med)
+            with open("pharmacy.dat", "wb") as f:
+                for med in medlist:
+                    pickle.dump(med, f)
+                    print("\033[0;32mItem added to pharmacy.dat\033[0m")
+        elif ch == "3":
+            print("Coming soon...")
+        elif ch == "4" and cur_user == "pharmacist":
+            print("\033[0;33mLogging out!\033[0m")
+            return None
+        elif ch == "4" and cur_user == "admin":
+            return menu()
+        else:
+            print("\033[0;31mInvalid choice!\033[0m")
 
 def change_password():
     users = []
@@ -447,34 +516,24 @@ def remove_account():
 
 
 def emp_login():
-    if os.path.getsize("emp_cred.dat") == 0:
-        print("\033[0;31mEmployee credentials directory empty! Please contact administrator!\033[0m")
+    if os.path.getsize("emp_dir.dat") == 0:
+        print("\033[0;31mEmployee directory empty! Please contact administrator!\033[0m")
         return ui_1()
     empid = input("Enter your empID: ")
-    emp_cred_list = []
-    emplist = []
+    emp_list = []
     try:
-        with open("emp_cred.dat", "rb") as f:
+        with open("emp_dir.dat", "rb") as f:
             try:
                 while True:
-                    emp_cred_list.append(pickle.load(f))
+                    emp_list.append(pickle.load(f))
             except EOFError:
                 pass
     except FileNotFoundError:
         print("\033[0;31mEmployee credential file not found. Contact administrator.\033[0m")
         return ui_1()
-    try:
-        with open("emp_dir.dat", "rb") as f:
-            try:
-                while True:
-                    emplist.append(pickle.load(f))
-            except EOFError:
-                pass
-    except FileNotFoundError:
-        print("\033[0;31mEmployee directory file not found. Contact administrator.\033[0m")
-        return ui_1()
-    for emp in emp_cred_list:
+    for emp in emp_list:
         global cur_empid
+        global cur_user
         if emp["empid"] == empid:
             if not emp["pwd"]:
                 print(f"\033[0;36mLogging in for the first time...create new password.")
@@ -484,8 +543,8 @@ def emp_login():
                     if pwd == pwd_ch:
                         emp["pwd"] = pwd
                         with open("emp_cred.dat", "wb") as f:
-                            for emp in emp_cred_list:
-                                pickle.dump(emp, f)
+                            for entry in emp_list:
+                                pickle.dump(entry, f)
                         print("\033[0;32mPassword created successfully!\033[0m")
                         return ui_1()
                     else:
@@ -496,13 +555,8 @@ def emp_login():
                     if emp["pwd"] == pwd:
                         cur_empid = empid
                         print("\033[0;32mLogged in successfully!\033[0m")
-                        print(f"\033[0;32mWelcome back {emp["name"]}!\033[0m")
-                        print(emp)
-                        for i in emplist:
-                            if i["empid"] == emp["empid"]:
-                                emp = i
-                                break
-                        if emp["designation"] != "pharmacist":
+                        print(f"\033[0;32mWelcome back!\033[0m")
+                        if empid[0:3] != "pha":
                             print("1. Patient Management")
                             print("2. Change Password")
                             print("3. Logout")
@@ -517,7 +571,8 @@ def emp_login():
                                     return ui_1()
                                 else:
                                     print("\033[0;31mInvalid choice!\033[0m")
-                        elif emp["designation"] == "pharmacist":
+                        elif emp["empid"][:3] == "pha":
+                            cur_user = "pharmacist"
                             return pharmacy_management()
                     else:
                         print(f"\033[0;31mWrong password! {4 - i} tries left.\033[0m")
