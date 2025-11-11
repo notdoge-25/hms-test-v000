@@ -30,7 +30,7 @@ def ui_1():
         return login()
     elif ch0 == "2":
         for i in range(3):
-            pwd_check = getpass.getpass("\033[0;32mEnter master password: \033[0m")
+            pwd_check = input("\033[0;32mEnter master password: \033[0m")
             if pwd_check == master_pwd:
                 return register_new()
             else:
@@ -78,8 +78,8 @@ def register_new():
             elif ch == "2":
                 return register_new()
     while True:
-        pwd = getpass.getpass("Enter your password: ")
-        pwd_ch = getpass.getpass("Re-enter your password: ")
+        pwd = input("Enter your password: ")
+        pwd_ch = input("Re-enter your password: ")
         if pwd == pwd_ch:
             new_user = {"uid": uid, "name": username, "password": pwd}
             with open("admin_dir.dat", "ab") as f:
