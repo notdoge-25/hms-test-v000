@@ -1,19 +1,16 @@
 import pickle
 import os
-import getpass
 
 
-file = open(r"admin_dir.dat", "ab")
+file = open("admin_dir.dat", "ab")
 file.close()
-file = open(r"emp_dir.dat", "ab")
+file = open("emp_dir.dat", "ab")
 file.close()
-file = open(r"emp_cred.dat", "ab")
+file = open("inventory_dir.dat", "ab")
 file.close()
-file = open(r"inventory_dir.dat", "ab")
+file = open("patient_rec.dat", "ab")
 file.close()
-file = open(r"patient_rec.dat", "ab")
-file.close()
-file = open(r"pharmacy.dat", "ab")
+file = open("pharmacy.dat", "ab")
 cur_uid = None
 cur_pwd = None
 cur_empid = None
@@ -136,38 +133,38 @@ def login():
 
 
 def menu():
-    print("\033[1;33mWhat do you want to work on?\033[0m")
-    print("1. Employee Management")
-    print("2. Patient Management")
-    print("3. Inventory Management")
-    print("4. Pharmacy Management")
-    print("5. Change password")
-    print("6. Remove account")
-    print("7. Logout")
-    ch = input("\033[0;36mEnter your choice: \033[0m")
-    if ch == "1":
-        return employee_management()
-    elif ch == "2":
-        return patient_management()
-    elif ch == "3":
-        return inventory_management()
-    elif ch == "4":
-        return pharmacy_management()
-    elif ch == "5":
-        return change_password()
-    elif ch == "6":
-        return remove_account()
-    elif ch == "7":
-        ch = input("\033[0;33mConfirm logout? (y/n) \033[0m")
-        if ch in "Yy":
-            print("\033[0;34mLogged out! \033[0m")
-            return ui_1()
-        elif ch in "Nn":
+    while True:
+        print("\033[1;33mWhat do you want to work on?\033[0m")
+        print("1. Employee Management")
+        print("2. Patient Management")
+        print("3. Inventory Management")
+        print("4. Pharmacy Management")
+        print("5. Change password")
+        print("6. Remove account")
+        print("7. Logout")
+        ch = input("\033[0;36mEnter your choice: \033[0m")
+        if ch == "1":
+            employee_management()
+        elif ch == "2":
+            patient_management()
+        elif ch == "3":
+            inventory_management()
+        elif ch == "4":
+            pharmacy_management()
+        elif ch == "5":
+            change_password()
+        elif ch == "6":
+            remove_account()
+        elif ch == "7":
+            ch = input("\033[0;33mConfirm logout? (y/n) \033[0m")
+            if ch in "Yy":
+                print("\033[0;34mLogged out! \033[0m")
+                return ui_1()
+            elif ch in "Nn":
+                continue
+        else:
+            print("\033[0;31mInvalid choice!\033[0m")
             return menu()
-        return menu()
-    else:
-        print("\033[0;31mInvalid choice!\033[0m")
-        return menu()
 
 def employee_management():
     while True:
@@ -349,7 +346,7 @@ def remove_empl():
 
 def patient_management():
     print("coming soon...")
-    return menu()
+
 
 
 def inventory_management():
@@ -358,14 +355,30 @@ def inventory_management():
 
 
 def pharmacy_management():
-    print("1. View stock")
-    print("2. Modify stock")
-    print("3. Billing")
-    if cur_user == "admin":
-        print("4. Go back")
-    elif cur_user == "pharmacist":
-        print("4. Logout")
+    def load_stock(file="pharmacy.dat"):
+        stock = []
+        if os.path.exists(file) and os.path.getsize(file) > 0:
+            with open(file, "rb") as f:
+                try:
+                    while True:
+                        stock.append(pickle.load(f))
+                except EOFError:
+                    pass
+        return stock
+
+    def save_stock(stock, file="pharmacy.dat"):
+        with open(file, "wb") as f:
+            for item in stock:
+                pickle.dump(item, f)
+
     while True:
+        print("1. View stock")
+        print("2. Modify stock")
+        print("3. Billing")
+        if cur_user == "admin":
+            print("4. Go back")
+        elif cur_user == "pharmacist":
+            print("4. Logout")
         ch = input("\033[0;36mEnter your choice: \033[0m")
         if ch == "1":
             if not os.path.exists("pharmacy.dat") or os.path.getsize("pharmacy.dat") == 0:
@@ -400,8 +413,12 @@ def pharmacy_management():
                         quantity = int(input("\033[0;31mEnter no of items added: \033[0m"))
                         items["quantity"] += quantity
                     elif sub_ch == "2":
-                        quantity = int(input("\033[0;31mEnter number of items sold: \033[0m"))
-                        items["quantity"] -= quantity
+                        quantity = int(input("\033[0;31mEnter number of items removed: \033[0m"))
+                        if items["quantity"] <= 0:
+                            print("\033[0;31mOut of stock!\033[0m")
+                            break
+                        else:
+                            items["quantity"] -= quantity
             if not found:
                 while True:
                     try:
@@ -409,15 +426,38 @@ def pharmacy_management():
                         quantity = int(input("\033[0;31mEnter quantity: \033[0m"))
                         break
                     except ValueError:
-                        print("\033[0;31mPlease enter proper data type! (Price - Float; Quantity - Integer\033[0m")
+                        print("\033[0;31mPlease enter proper data type! (Price - Float; Quantity - Integer)\033[0m")
                 med = {"item_name": item_name, "item_id": item_id, "quantity": quantity, "price": price}
                 medlist.append(med)
             with open("pharmacy.dat", "wb") as f:
                 for med in medlist:
                     pickle.dump(med, f)
-                    print("\033[0;32mItem added to pharmacy.dat\033[0m")
+                    print("\033[0;32mOperation succeeded!\033[0m")
         elif ch == "3":
-            print("Coming soon...")
+            cart = []
+            medlist = []
+            if os.path.exists("pharmacy.dat") and os.path.getsize("pharmacy.dat") > 0:
+                with open("pharmacy.dat", "rb") as f:
+                    try:
+                        while True:
+                            medlist.append(pickle.load(f))
+                    except EOFError:
+                        pass
+            for med in medlist:
+                print(med)
+            while True:
+                med_id = input("\033[0;36mEnter item id: \033[0m")
+                found = False
+                for item in medlist:
+                    if item["item_id"] == med_id:
+                        found = True
+                        cart.append(item)
+                ch = input("\033[0;36mAdd more? (y/n): \033[0m")
+                if ch == "y":
+                    continue
+                else:
+                    break
+                        
         elif ch == "4" and cur_user == "pharmacist":
             print("\033[0;33mLogging out!\033[0m")
             return None
@@ -536,13 +576,13 @@ def emp_login():
         global cur_user
         if emp["empid"] == empid:
             if not emp["pwd"]:
-                print(f"\033[0;36mLogging in for the first time...create new password.")
+                print(f"\033[0;36mLogging in for the first time...create new password.\033[0m")
                 while True:
                     pwd = input("Enter your password: ")
                     pwd_ch = input("Re-enter your password: ")
                     if pwd == pwd_ch:
                         emp["pwd"] = pwd
-                        with open("emp_cred.dat", "wb") as f:
+                        with open("emp_dir.dat", "wb") as f:
                             for entry in emp_list:
                                 pickle.dump(entry, f)
                         print("\033[0;32mPassword created successfully!\033[0m")
@@ -557,15 +597,15 @@ def emp_login():
                         print("\033[0;32mLogged in successfully!\033[0m")
                         print(f"\033[0;32mWelcome back!\033[0m")
                         if empid[0:3] != "pha":
-                            print("1. Patient Management")
-                            print("2. Change Password")
-                            print("3. Logout")
                             while True:
+                                print("1. Patient Management")
+                                print("2. Change Password")
+                                print("3. Logout")
                                 ch = input("Enter your choice: ")
                                 if ch == "1":
                                     return patient_management()
                                 elif ch == "2":
-                                    return change_pwd_empl()
+                                    change_pwd_empl()
                                 elif ch == "3":
                                     print("\033[0;33mLogging out!\033[0m")
                                     return ui_1()
@@ -573,7 +613,21 @@ def emp_login():
                                     print("\033[0;31mInvalid choice!\033[0m")
                         elif emp["empid"][:3] == "pha":
                             cur_user = "pharmacist"
-                            return pharmacy_management()
+                            while True:
+                                print("1. Pharmacy Management")
+                                print("2. Change Password")
+                                print("3. Logout")
+                                ch = input("Enter your choice: ")
+                                if ch == "1":
+                                    return pharmacy_management()
+                                elif ch == "2":
+                                    change_pwd_empl()
+                                elif ch == "3":
+                                    print("\033[0;33mLogging out!\033[0m")
+                                    return ui_1()
+                                else:
+                                    print("\033[0;31mInvalid choice!\033[0m")
+
                     else:
                         print(f"\033[0;31mWrong password! {4 - i} tries left.\033[0m")
                 print("\033[0;31mToo many failed attempts. Try again later.\033[0m")
@@ -584,7 +638,7 @@ def emp_login():
 
 def change_pwd_empl():
     emplist = []
-    with open("emp_cred.dat", "rb") as f:
+    with open("emp_dir.dat", "rb") as f:
         try:
             while True:
                 emplist.append(pickle.load(f))
@@ -606,10 +660,10 @@ def change_pwd_empl():
                     else:
                         print("\033[0;31mPassword mismatch! Try again. \033[0m")
                         continue
-    with open("emp_cred.dat", "wb") as f:
+    with open("emp_dir.dat", "wb") as f:
         for emp in emplist:
             pickle.dump(emp, f)
-    return menu()
+
 
 
 
